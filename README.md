@@ -1,0 +1,122 @@
+# ultimateALPR : proceed ETL nested json files with AWS S3, Glue Crawler and Spark
+
+Doubango AI is a company that build artificial intelligence solutions and apps using state of the art deep learning and computer vision technologies. Providing 3D Face liveness check (anti-spoofing), ANPR/ALPR, MRZ/MRTD, ScanToPay, MICR, CBIR, ICR, OCR, SceneText for smart cities solutions.
+
+Our goal is to extract and transform the output results of the ANPR/ALPR solution, for future analysis.
+
+We have 2 modes to process the recognition of the cars, streaming or batch mode. In for the moment, we chose the batch mode. 
+To achieve this task, we will following this steps:
+
+![image info](./images/diagram.png)
+
+1-	License Plate Recognition: We assume this step will not be covered in this topic, but we will use it for diagram understanding
+-	collect the images: 251,526 images, each picture could have 1 or more car, trunks or motorcycle
+-	process license plate recognizer with the python SDK. This will give us 251,526 json files to store in local disk (no FS or HDFS)
+
+2-	[Ingest json files from local]() to a S3 bucket `ultimatealpr`
+
+3-	Transform json files to parquet format, by using AWS Glue Crawler
+
+4-	Extract and transform data with spark on EMR cluster
+
+5-	Load result of the ETL in the S3 lakestorage bucket
+
+6-	Data validation
+
+## Data modeling : why chosing a data lake storage instead a DWH ?
+1-  data structured 
+The json structure given by the log json file are deeply nested like this :
+
+![image info](./images/schema.PNG)
+
+In our case we will explode the data in set of file to parquet format, and then we could infer with the schema on demand :
+![image info](./images/explode_files.png)
+
+2-  Costs:
+If we have chosed DWH technology, in our case we will chose a database solution (Redshift, DynamoDB ...) and a EC2 machine to process data. 
+This strategy will be more effect cost than chosing S3 bucket storage and EMR cluster to process ower Spark script to do the ETL.
+
+3-  Schema on read:
+Combining storage on S3 and Spark, it's easy to work and process files without creating database and save the result files in parquet format.
+Parquet format allow us to inferre with files as a schema of a database, but the data remain in a file and we could read them following a specifique schema on demand.
+
+## How to run this project :
+To run this project, please following the below steps :
+
+1-  Configure a Glue job to convert json log files to parquet :
+
+![image info](./images/Glue_crawler.PNG)
+
+Set :
+-   data source : `ultimatealpr` bucket
+-   data target : `ultimatealpr-staging` bucket
+-	chose : spark for the type of ETL
+-	use 10 workers(G.1 x type) for the transformation
+-	store parquet files portioned by timestamp : output 141 blocks.
+
+2-  Create EMR cluster
+-	chose EMR cluster instance type : m5.xlarge (more than enough)
+-   with 3 cores (1 driver and 2 executors)
+-   copy and paste the `ETL.py` script and your `.pem` key to the EMR cluster at home directory
+-	submit the ETL spark job in the cluster (we chose `yarn` as cluster manager)
+
+3-  Data validation 
+It up to you to chose the way to validate the results:
+-   Glue crawler --> Glue catalogue --> SQL query with Athena
+-   Or directely read parquet files from `ultimatealpr-staging` bucket in jupyter notebook with spark
+We decide to proceed with the validation in jupyther notebook `Test.ipynb`
+
+## performances and cost effect :
+1-	License plate recognizer : local machine, we don't mesure the performence for this step
+
+2-	Ingest json files from local to a S3 bucket `ultimatealpr` 
+-   took hours (process will be improved in the future : Data Sync, HDPS in local)
+-   S3 services
+    -   Put : $2,21 for 401,515 Requests ($0.0055 per 1,000 requests)
+    -   Get : $2.44 for 5,549,535 Requests ($0.0044 per 10,000 requests)
+
+3-	Glue job to transform json file to parquet
+-	the job took 9 minutes
+-	used 1.48 DPU hours
+-   cost : $0,65 ($0.44 per DPU)
+
+4-5	ETL with spark on EMR cluster:
+-	the spark job took 1.4 minutes
+-   cost : $0.048 per hour for EMR m5.xlarge
+-   there was 8 jobs each one took less than 13 seconds, see below the spark job in sparkUI :
+
+![image info](./images/sparkUi3.png)
+
+
+## Data validation :
+
+**- bodyStyle** : ? rows
+
+**- color** : ? rows
+
+**- makeModelYear** : ? rows
+
+**- warpedBoxCar** : ? rows
+
+**- car** : ? rows
+
+**- country** : ? rows
+
+**- warpedBoxPlate** : ? rows
+
+**- plate** : ? rows
+
+## Future improvements :
+- Live recognition with camera
+- Ingest data from local to S3 bucket in streaming mode
+- Configure Glue job to parse data by event in S3 data sources bucket
+- cost optimization
+
+### References :
+- [ultimateALPR](https://github.com/DoubangoTelecom/ultimateALPR-SDK)
+- [Convert CSV / JSON files to Apache Parquet using AWS Glue](https://medium.com/searce/convert-csv-json-files-to-apache-parquet-using-aws-glue-a760d177b45f)
+- [How to choose an appropriate file format for your data pipeline](https://medium.com/@montadhar/how-to-choose-an-appropriate-file-format-for-your-data-pipeline-69bbfa911414)
+
+
+
+ 
