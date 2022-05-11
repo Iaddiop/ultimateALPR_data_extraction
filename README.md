@@ -7,7 +7,9 @@ Our goal is to extract and transform the output results of the ANPR/ALPR solutio
 We have 2 modes to process the recognition of the cars, streaming or batch mode. In for the moment, we chose the batch mode. 
 To achieve this task, we will following this steps:
 
-![image info](./images/diagram.png)
+<p align="center">
+  <img src="./images/diagram.png">
+</p>
 
 1-	License Plate Recognition: We assume this step will not be covered in this topic, but we will use it for diagram understanding
 -	collect the images: 251,526 images, each picture could have 1 or more car, trunks or motorcycle
@@ -27,10 +29,15 @@ To achieve this task, we will following this steps:
 1-  data structured 
 The json structure given by the log json file are deeply nested like this :
 
-![image info](./images/schema.PNG)
+<p align="center">
+  <img src="./images/schema.PNG">
+</p>
 
 In our case we will explode the data in set of file to parquet format, and then we could infer with the schema on demand :
-![image info](./images/explode_files.png)
+
+<p align="center">
+  <img src="./images/explode_files.png">
+</p>
 
 2-  Costs:
 If we have chosed DWH technology, in our case we will chose a database solution (Redshift, DynamoDB ...) and a EC2 machine to process data. 
@@ -44,8 +51,6 @@ Parquet format allow us to inferre with files as a schema of a database, but the
 To run this project, please following the below steps :
 
 1-  Configure a Glue job to convert json log files to parquet :
-
-![image info](./images/Glue_crawler.PNG)
 
 <p align="center">
   <img src="./images/Glue_crawler.PNG">
@@ -89,8 +94,9 @@ We decide to proceed with the validation in jupyther notebook `Test.ipynb`
 -   cost : $0.048 per hour for EMR m5.xlarge
 -   there was 8 jobs each one took less than 13 seconds, see below the spark job in sparkUI :
 
-![image info](./images/sparkUi3.png)
-
+<p align="center">
+  <img src="./images/sparkUi3.png">
+</p>
 
 ## Data validation :
 
