@@ -1,0 +1,4 @@
+configparser
+pyspark
+os
+boto3

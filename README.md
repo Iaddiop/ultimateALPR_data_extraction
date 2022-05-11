@@ -13,7 +13,7 @@ To achieve this task, we will following this steps:
 -	collect the images: 251,526 images, each picture could have 1 or more car, trunks or motorcycle
 -	process license plate recognizer with the python SDK. This will give us 251,526 json files to store in local disk (no FS or HDFS)
 
-2-	[Ingest json files from local]() to a S3 bucket `ultimatealpr`
+2-	[Ingest json files from local](https://github.com/Iaddiop/ultimateALPR_data_extraction/blob/master/Ingest_Files_from_local_to_s3.py) to a S3 bucket `ultimatealpr`
 
 3-	Transform json files to parquet format, by using AWS Glue Crawler
 
@@ -46,6 +46,10 @@ To run this project, please following the below steps :
 1-  Configure a Glue job to convert json log files to parquet :
 
 ![image info](./images/Glue_crawler.PNG)
+
+<p align="center">
+  <img src="./images/Glue_crawler.PNG">
+</p>
 
 Set :
 -   data source : `ultimatealpr` bucket
@@ -90,27 +94,32 @@ We decide to proceed with the validation in jupyther notebook `Test.ipynb`
 
 ## Data validation :
 
-**- bodyStyle** : ? rows
+There are 266440 rows in each bolw files :
 
-**- color** : ? rows
+**- bodyStyle**
 
-**- makeModelYear** : ? rows
+**- color** 
 
-**- warpedBoxCar** : ? rows
+**- makeModelYear**
 
-**- car** : ? rows
+**- carWarpedBox** 
 
-**- country** : ? rows
+**- car** 
 
-**- warpedBoxPlate** : ? rows
+**- country** 
 
-**- plate** : ? rows
+**- plateWarpedBox** 
+
+There are 245155 rows in below file :
+
+**- plate** 
 
 ## Future improvements :
 - Live recognition with camera
 - Ingest data from local to S3 bucket in streaming mode
 - Configure Glue job to parse data by event in S3 data sources bucket
-- cost optimization
+
+All this improvements will be defined with Doubango AI analysis departement.
 
 ### References :
 - [ultimateALPR](https://github.com/DoubangoTelecom/ultimateALPR-SDK)

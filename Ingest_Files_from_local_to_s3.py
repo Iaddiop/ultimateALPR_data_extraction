@@ -1,3 +1,13 @@
+"""
+    * File author: Ibrahima DIOP
+    Compagny : Doubango AI
+    linkedin : https://www.linkedin.com/in/ibrahima-diop-82636462/
+    Email : ibrahimadiop.idp@gmail.com
+    * License: For non commercial use only.
+    * Source code: https://github.com/Iaddiop/ultimateALPR_data_extraction/blob/master/Ingest_Files_from_local_to_s3.py
+
+"""
+
 import boto3  # pip install boto3
 import glob
 import os
@@ -19,8 +29,8 @@ session = boto3.Session(profile_name='default')
 s3 = session.client('s3')
 
 # Pash for local files :
-#image_files  = glob.glob("/media/iad/Nouveau nom/Data_Engineering_Nanodegree_Program/Capstone_project/recognizer_images/*.png")
-log_files = glob.glob("/media/iad/Données/recognizer/recognizer_logs/*.json")
+#image_files  = glob.glob("/recognizer_images/*.png")
+log_files = glob.glob("/recognizer_logs/*.json")
 
 # Upload files from local to s3
 for filename in log_files:
