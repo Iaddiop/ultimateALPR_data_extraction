@@ -108,25 +108,9 @@ We decide to proceed with the validation in jupyther notebook `Test.ipynb`
 ## Data validation and data dictionary:
 
 1-  Data validation
-There are 266440 rows in each bolw files :
-
-**- bodyStyle**
-
-**- color** 
-
-**- makeModelYear**
-
-**- carWarpedBox** 
-
-**- car** 
-
-**- country** 
-
-**- plateWarpedBox** 
-
-There are 245155 rows in below file :
-
-**- plate** 
+The data engineering team and the users support team must be check if :
+-   the parquet files are exist
+-   there are rows in the parquet files
 
 2-  Data dictionary
 
