@@ -35,61 +35,62 @@ def createSparkSession():
 
 
 def getData(spark, path):
+    """
+    Read parquet files
+    """
     bodyStyle = spark.read.parquet(path + "bodyStyle/")
     car = spark.read.parquet(path + "car/")
-    carWarpedBox = spark.read.parquet(path + "carWarpedBox/")
     color = spark.read.parquet(path + "color/")
     country = spark.read.parquet(path + "country/")
     makeModelYear = spark.read.parquet(path + "makeModelYear/")
     plate = spark.read.parquet(path + "plate/")
-    plateWarpedBox = spark.read.parquet(path + "plateWarpedBox/")
 
 def dataModelCheck(dataframe):
     return dataframe.printSchema()
 
 def rowsCheck(dataframe):
+    """
+    Ckech if rows exist or not
+    return: true or false if check is correct
+    """
     return dataframe.count() > 0
 
 def integrityCheckCar(car, bodyStyle, color, makeModelYear):
-        """
-        Check the integrity of the model.
-        :return: true or false if integrity is correct.
-        """
-        joinKey1 = [car.bodyStyle == bodyStyle.name, car.frame_id == bodyStyle.frame_id, car.createDateTime == bodyStyle.createDateTime]
-        integrity_bodyStyle = car.join(bodyStyle, joinKey1, "inner") \
-                             .count() == 0
+    """
+    Check the integrity of the model
+    return: true or false if integrity is correct
+    """
+    joinKey1 = [car.bodyStyle == bodyStyle.name, car.frame_id == bodyStyle.frame_id, car.createDateTime == bodyStyle.createDateTime]
+    integrity_bodyStyle = car.join(bodyStyle, joinKey1, "inner") \
+                            .count() == 0
 
-        joinKey2 = [car.color == color.name, car.frame_id == color.frame_id, car.createDateTime == color.createDateTime]
-        integrity_color = car.join(color, joinKey2, "inner") \
-                             .count() == 0
+    joinKey2 = [car.color == color.name, car.frame_id == color.frame_id, car.createDateTime == color.createDateTime]
+    integrity_color = car.join(color, joinKey2, "inner") \
+                            .count() == 0
 
-        joinKey3 = [car.make == makeModelYear.make, car.frame_id == makeModelYear.frame_id, car.createDateTime == makeModelYear.createDateTime]
-        integrity_makeModelYear = car.join(makeModelYear, joinKey2, "inner") \
-                             .count() == 0
-        return integrity_bodyStyle & integrity_color & integrity_makeModelYear
+    joinKey3 = [car.make == makeModelYear.make, car.frame_id == makeModelYear.frame_id, car.createDateTime == makeModelYear.createDateTime]
+    integrity_makeModelYear = car.join(makeModelYear, joinKey2, "inner") \
+                            .count() == 0
+    return integrity_bodyStyle & integrity_color & integrity_makeModelYear
 
-def integrityCheckPlate(plate, country):
-        """
-        Check the integrity of the model.
-        :return: true or false if integrity is correct.
-        """
-        joinKey1 = [plate.frame_id == country.frame_id, plate.countryName == country.frame_id, plate.createDateTime == country.createDateTime]
-        integrity_bodyStyle = car.join(bodyStyle, joinKey1, "inner") \
-                             .count() == 0
+def integrityCheckPlate(plate, country, car):
+    """
+    Check the integrity of the model
+    return: true or false if integrity is correct
+    """
+    joinKey4 = [plate.countryName == country.name, plate.frame_id == country.frame_id, plate.createDateTime == country.createDateTime]
+    integrity_country = plate.join(country, joinKey4, "inner") \
+                            .count() == 0
+    
+    joinKey5 = [car.plateText == plate.plateText, car.frame_id == plate.frame_id,  car.createDateTime == plate.createDateTime]
+    integrity_plate = plate.join(country, joinKey5, "inner") \
+                            .count() == 0
 
-        joinKey2 = [car.color == color.name, car.frame_id == color.frame_id, car.createDateTime == color.createDateTime]
-        integrity_color = car.join(color, joinKey2, "inner") \
-                             .count() == 0
-
-        joinKey3 = [car.make == makeModelYear.make, car.frame_id == makeModelYear.frame_id, car.createDateTime == makeModelYear.createDateTime]
-        integrity_makeModelYear = car.join(makeModelYear, joinKey2, "inner") \
-                             .count() == 0
-        return integrity_bodyStyle & integrity_color & integrity_makeModelYear
+    return integrity_country & integrity_plate
 
 def main():
     spark = createSparkSession()
     path = "s3a://lakestorage/"
-
     dataframe = ["bodyStyle", "car", "carWarpedBox", "color", "country" ,"makeModelYear", "plate", "plateWarpedBox"]
 
     getData(spark, path)
@@ -97,7 +98,6 @@ def main():
     rowsCheck(*dataframe)
     integrityCheckCar()
     integrityCheckPlate()
-
 
     spark.stop()
 
