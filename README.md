@@ -40,7 +40,7 @@ The json structure given by the log json file are deeply nested like this :
 In our case we will explode the data in set of file to parquet format, and then we could infer with the schema on demand :
 
 <p align="center">
-  <img src="./images/explode_files.png">
+  <img src="./images/explode_files_v2.png">
 </p>
 
 2-  Costs:
