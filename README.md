@@ -51,9 +51,6 @@ This strategy will be more effect cost than chosing S3 bucket storage and EMR cl
 Combining storage on S3 and Spark, it's easy to work and process files without creating database and save the result files in parquet format.
 Parquet format allow us to inferre with files as a schema of a database, but the data remain in a file and we could read them following a specifique schema on demand.
 
-4-  Changing structure:
-The ultimateAlPR output could change, update or delete some structure in the json log files.
-
 ## How to run this project :
 To run this project, please following the below steps :
 
