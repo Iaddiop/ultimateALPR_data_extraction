@@ -2,8 +2,12 @@
 
 Doubango AI is a company that build artificial intelligence solutions and apps using state of the art deep learning and computer vision technologies. Providing 3D Face liveness check (anti-spoofing), ANPR/ALPR, MRZ/MRTD, ScanToPay, MICR, CBIR, ICR, OCR, SceneText for smart cities solutions.
 
-Our goal is to extract and transform the output results of the ANPR/ALPR solution, for future analysis.
+The Users Support team of Doubango AI need to analyze after effect the incidences or events. 
+This Analysis could be done via dishoarding solutions (Grafana, Tableau …) or via web application.
 
+The Users support team would like also to know the performance and the cost in daily basis, that could help the company to decide with solution are efficient and how to improve it.
+
+## Demarche and steps 
 We have 2 modes to process the recognition of the cars, streaming or batch mode. In for the moment, we chose the batch mode. 
 To achieve this task, we will following this steps:
 
@@ -23,7 +27,7 @@ To achieve this task, we will following this steps:
 
 5-	Load result of the ETL in the S3 lakestorage bucket
 
-6-	Data validation
+6-	Data validation and data quality check
 
 ## Data modeling : why chosing a data lake storage instead a DWH ?
 1-  data structured 
@@ -46,6 +50,9 @@ This strategy will be more effect cost than chosing S3 bucket storage and EMR cl
 3-  Schema on read:
 Combining storage on S3 and Spark, it's easy to work and process files without creating database and save the result files in parquet format.
 Parquet format allow us to inferre with files as a schema of a database, but the data remain in a file and we could read them following a specifique schema on demand.
+
+4-  Changing structure:
+The ultimateAlPR output could change, update or delete some structure in the json log files.
 
 ## How to run this project :
 To run this project, please following the below steps :
@@ -70,12 +77,12 @@ Set :
 -	submit the ETL spark job in the cluster (we chose `yarn` as cluster manager)
 
 3-  Data validation 
-It up to you to chose the way to validate the results:
+We have 2 ways to validate de quality of the data and check results:
 -   Glue crawler --> Glue catalogue --> SQL query with Athena
 -   Or directely read parquet files from `ultimatealpr-staging` bucket in jupyter notebook with spark
 We decide to proceed with the validation in jupyther notebook `Test.ipynb`
 
-## performances and cost effect :
+## Performances and cost effect :
 1-	License plate recognizer : local machine, we don't mesure the performence for this step
 
 2-	Ingest json files from local to a S3 bucket `ultimatealpr` 
@@ -98,8 +105,9 @@ We decide to proceed with the validation in jupyther notebook `Test.ipynb`
   <img src="./images/sparkUi3.png">
 </p>
 
-## Data validation :
+## Data validation and data dictionary:
 
+1-  Data validation
 There are 266440 rows in each bolw files :
 
 **- bodyStyle**
@@ -120,12 +128,26 @@ There are 245155 rows in below file :
 
 **- plate** 
 
-## Future improvements :
-- Live recognition with camera
-- Ingest data from local to S3 bucket in streaming mode
-- Configure Glue job to parse data by event in S3 data sources bucket
+2-  Data dictionary
 
-All this improvements will be defined with Doubango AI analysis departement.
+
+## Future improvements :
+-   Live recognition with camera
+-   Ingest data from local to S3 bucket in streaming mode or with AWS DataSync to automate moving data between on premise to S3.
+-   Configure Glue job to parse data by event in S3 data sources bucket to the staging area `ultimatealpr-staging` bucket
+-   Add new feature in the ultimateALP application to assign the position of the recognition (country, state …). These features allow us to centralize the analysis or to dispatch data in buckets by area
+
+All this improvements will be defined with Doubango AI analysis departement and User support team.
+
+## Future scenarios
+-   In the `ultimatealpr` S3 bucket the data going to increase, but the analytical rules need 1 month data storage. In the scenario the data increas by 100x (events: Black Friday, charismas, sales discount period):
+    -   1 month data retention will be needed 
+    -   1 years archive in S3 Glacier (storing archives, data retrieval, event notifications) 
+    -   Set Glue job to automatically scale the number of workers
+-	The pipelines would be run on a daily basis by 7 am every day to run the analysis dashboards (Streamlit for example) : 
+    -   Airflow could be used to run the pipeline to populate the dashboard
+    -   Daily data quality check could be performed end send email to the user support team and the Data engineering team for the monitoring
+-	The S3 policy could be extend to allow permission and could be accessible by 100+ people. In the case of Dubango AI as the data could be centralized or dispatched for each localities, the accessibility of the data depend of this strategy (centralized or decentralized) and set up the buckets by area or not.
 
 ### References :
 - [ultimateALPR](https://github.com/DoubangoTelecom/ultimateALPR-SDK)
