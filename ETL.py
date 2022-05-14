@@ -2,9 +2,9 @@
     * File author: Ibrahima DIOP
     Compagny : Doubango AI
     linkedin : https://www.linkedin.com/in/ibrahima-diop-82636462/
-    Email : ibrahimadiop.idp@gmail.com
+    Email : ibrahimadiop.idp(@)gmail(.)com
     * License: For non commercial use only.
-    * Source code: https://github.com/Iaddiop/ultimateALPR_data_extraction/blob/master/ETL.py
+    * Source code: https://github.com/Iaddiop/ultimateALPR_data_extraction/blob/master/etl.py
 
 """
 
@@ -95,6 +95,7 @@ def processData(spark, inputData, outputData):
     carFieldsName = ["car_id", "frame_id", "color", "bodyStyle", "plateText","make", "warpedBoxV1", "warpedBoxV2", "warpedBoxV3","warpedBoxV4", "createDateTime"]
 
     car = explodeDFL1.select(*carFields).toDF(*carFieldsName).dropDuplicates(["plateText", "color", "bodyStyle",  "make", "createDateTime"])
+    car.write.partitionBy("createDateTime").mode("overwrite").parquet(outputData + 'car')
 
     # II - plate caracterisques
     # Create country DataFrame, and write the output to parquet file
@@ -118,6 +119,7 @@ def processData(spark, inputData, outputData):
                             "warpedBoxV5", "globalConfidencev1", "globalConfidencev2", "createDateTime"]
 
     plate = explodeDFL1.select(*plateFields).toDF(*plateFieldsName).dropDuplicates(["plateText", "countryName", "createDateTime"])
+    plate.write.partitionBy("createDateTime").mode("overwrite").parquet(outputData + 'plate')
 
 
 def main():
