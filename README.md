@@ -76,7 +76,7 @@ Set:
 -  use 10 workers (G.1x type) for the transformation 
 -  portion key : timestamp (output 141 blocks)
 
-2- [Create EMR cluster](https://medium.com/towards-data-science/how-to-create-and-run-an-emr-cluster-using-aws-cli-3a78977dc7f0)
+2- Create EMR cluster
 - chose EMR cluster instance type: m5.xlarge (more than enough)
 - with 3 cores (1 driver and 2 executors)
 - copy and paste the `etl.py` script and your `.pem` key to the EMR cluster at home directory
