@@ -8,7 +8,7 @@ Before to build the analytical solution, the output logs of ANPR/ALPR need to be
 
 We chose the AWS technologies to process, transform and store the data.
 
-## Steps to perform car plate recognition, extract information, transform it and store data
+## Steps to perform car plate recognition, extract information, transform and store data
 
 The log files are in local machine and will be load in S3, then we will process the ETL on a EMR cluster and finally store the results to a data lake in a S3 bucket:
 
